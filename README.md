@@ -4,50 +4,35 @@ Analysis pipeline by Forde Lab.
 
 Bioinfomatics development by Dr. Brian Forde, coding by Thom Cuddihy
 
+## Requirements
 
-## Installation
+SnapperRocks requires that [Nextflow](https://www.nextflow.io/) v20+ be installed to run, which is compatible with Linux and OSX.
 
-After pulling, you will need to merge the taxonomic database back together using `merge_db.sh`
+Compute environments are provided in [Singularity/Apptainer](https://apptainer.org/) containers for local and cluster deployment. For AWS deployment, instances may be created from the containers.
 
-## Misc
+## Containers
 
-After adding new MLST refs, make sure that the bowtie2 db is built for each.
+After pulling, you will need to download the latest published Singularity containers:
 
+* [General Container](https://fordelab.com/share/sr_general_db_0.9.img), MD5: eb324ed5ee10d303a2b2d92358565388
+* [Kraken2 Container](https://fordelab.com/share/sr_kraken_db_0.9.img), MD5: fac635cecaf4af8f28c8b01252b19900
+* [Nesoni Container](https://fordelab.com/share/sr_nesoni_0.9.img), MD5: df1b5c1deef639ccdae05a2d66364ed1
+
+## Initial Configuration
+
+Update the `nextflow.config` file as appropriate for Singularity container location (default is '/data/images/').
+
+## Running
+
+SnapperRocks may be launched from the command line, using the Nextflow binary and the pipeline’s main.nf file. Any changes to the default values (see User Guide) may be specified with a `--` prefix and then the value. For Boolean parameters, a true value may be indicated with just the `--` prefix. 
+
+Defaults may be permanently changed by editing the nextflow.config file in the path of SnapperRocks’ main.nf.
+
+E.g.:
 ```bash
-cd db/MLST
-
-# find refs w/o bt2 db
-for d in `ls -d */`; do 
-    S="${d/\//}"
-    ls ${S}/*.bt2 > /dev/null; 
-done
-
-# example bulk generation
-for d in `ls -d */`; do
-  S="${d/\//}"
-  bowtie2-build "/opt/SnapperRocks/db/MLST/${S}/${S}.fa" "/opt/SnapperRocks/db/MLST/${S}/${S}.fa"
-done
+nextflow /path/to/SnapperRocks/main.nf --run_id "run_71" --fastq "/ftp/ingest/*_R{1,2}.fastq.gz" --trim --taxoprofile  --assembly --typing --nesoni --cluster --executor "slurm"
 ```
 
-## Docker
+At a minimum, the values that change between runs should be specified on the command line (e.g. `run_id`, and depending on data ingest and handling `fastq` and/or `results`)
 
-We use .dockerignore trickery when building the docker containers. Set working directory to `./docker` and run the build script (with version tag) from there. E.g.:
-
-```bash
-cd docker
-./nesoni/build.sh 0.8
-```
-
-## Singularity
-
-We support singularity containers by building the docker containers first, exporting them to tar using `docker save` and then re-building into Singularity with `singularity build container.img docker-archive://container.tar`
-
-## NextFlow
-
-Update the `nextflow.config` file as appropriate for local system (docker/singularity/native, slurm/pbs/local/awsbatch e.g.) and run options:
-
-```bash
-cd NextFlow
-vi nextflow.config
-nextflow run main.nf
-```
+Parameters that will stay the same between runs may be updated in the nextflow.config or left as command line arguments and stored as a batch file for record keeping.
