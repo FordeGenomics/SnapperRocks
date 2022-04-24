@@ -36,3 +36,7 @@ nextflow /path/to/SnapperRocks/main.nf --run_id "run_71" --fastq "/ftp/ingest/*_
 At a minimum, the values that change between runs should be specified on the command line (e.g. `run_id`, and depending on data ingest and handling `fastq` and/or `results`)
 
 Parameters that will stay the same between runs may be updated in the nextflow.config or left as command line arguments and stored as a batch file for record keeping.
+
+## Example Data
+
+Example data is available for download [here](https://fordelab.com/share/Example_Data.zip), MD5: 556e88b1b454d40d17e24376da2e1e43
